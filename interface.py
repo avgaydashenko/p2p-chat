@@ -70,9 +70,13 @@ class Interface:
         tkinter.Entry(width=15, textvariable=self.client_port).grid(padx=5)
 
         tkinter.Button(text="Connect", width=15, command=lambda: self.create_user(self.handle_client)).grid(padx=5)
+        tkinter.Button(text="Connect server", width=15, command=lambda: self.connect_server()).grid(padx=5)
 
     def create_user(self, user_create):
         self.user = user_create(
             name=self.user_name.get(), display=self.display_message,
             host=self.client_host.get(), port=int(self.client_port.get())
         )
+
+    def connect_server(self):
+        self.user.connect(host=self.client_host.get(), port=int(self.client_port.get()))
