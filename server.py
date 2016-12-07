@@ -1,7 +1,6 @@
+import socket
 import logging
-import grpc
-import chat_pb2
-from concurrent import futures
+from threading import Thread
 from user import User
 
 
@@ -11,24 +10,23 @@ class Server(User):
 
         super().__init__(name)
 
-        class ChatServicerServer(chat_pb2.ChatServicer):
-            def Send(self, request, context):
-                logging.info("sever received message")
-                display(request.message)
-                return chat_pb2.Message(text="got it")
+        self.display = display
 
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-        chat_pb2.add_ChatServicer_to_server(ChatServicerServer(), server)
-        server.add_insecure_port("{host}:{port}".format(host=host, port=port))
-        server.start()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, proto=socket.IPPROTO_TCP)
+        sock.bind((host, port))
+        sock.listen()
+        self.conn, self.addr = sock.accept()
 
         logging.info("server started")
 
-    def connect(self, host, port):
-        channel = grpc.insecure_channel("{host}:{port}".format(host=host, port=port+1))
-        self.stub = chat_pb2.ChatStub(channel)
-        logging.info("server connected to client")
+        Thread(target=self.receive_message).start()
+
+    def receive_message(self):
+        while True:
+            if self.addr:
+                logging.info("server received message")
+                self.display(str(self.conn.recv(1024), 'utf8'))
 
     def send_message(self, msg):
-        self.stub.Send(chat_pb2.Message(text=msg))
+        self.conn.send(bytes(msg, 'utf8'))
         logging.info("server send message")
