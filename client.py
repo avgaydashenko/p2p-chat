@@ -5,6 +5,9 @@ from user import User
 
 
 class Client(User):
+    # to create client we need to know username, some function which would 
+    # display messages (it could be either graphical or console application)
+    # and server's host and port
     def __init__(self, name, display, host='localhost', port=5000):
         logging.info("init client")
 
@@ -17,6 +20,7 @@ class Client(User):
 
         logging.info("client connected")
 
+        # starting to listen incoming messages
         Thread(target=self.receive_message).start()
 
     def receive_message(self):

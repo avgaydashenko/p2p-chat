@@ -4,17 +4,29 @@ from time import localtime, strftime
 
 class Interface:
     def __init__(self, handle_server, handle_client):
+        # create graphical interface
         self.root = tkinter.Tk()
         self.root.title("P2P Chat")
+        # first two parameters are coordinates of top left window point
+        # last two are window width and height
         self.root.geometry("400x240+300+200")
 
         self.handle_server = handle_server
         self.handle_client = handle_client
 
+        # draw field for username
         self.init_user()
+
+        # draw fields for host and port and button to create server
         self.init_server(handle_server)
+
+        # draw fields for host and port and button to connect to server
         self.init_client(handle_client)
+
+        # draw field to display messages
         self.init_chatfield()
+
+        # draw field to write messages
         self.init_writingfield()
 
         self.root.mainloop()
@@ -31,6 +43,8 @@ class Interface:
     def init_writingfield(self):
         self.message_text = tkinter.StringVar()
         tkinter.Entry(width=30, textvariable=self.message_text).grid(row=7, column=1, rowspan=2, padx=20, pady=5)
+
+        # send message by Enter
         self.root.bind("<Return>", lambda x: self.send_message())
 
     def send_message(self):
